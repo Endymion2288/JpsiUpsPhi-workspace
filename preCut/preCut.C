@@ -18,8 +18,8 @@
 #define CUT_PHI_TRY
 
 #define ALLOW_OVERLAP
-#include "/home/storage0/users/chiwang/storage2/CMS-Analysis/JpsiUpsPhi/workspace/includes/ParticleCand.C"
-#include "/home/storage0/users/chiwang/storage2/CMS-Analysis/JpsiUpsPhi/workspace/preCut/preCut.h"
+#include "/home/storage2/users/xingcheng/CMSSW_14_0_18/src/JpsiUpsPhi-workspace/includes/ParticleCand.C"
+#include "/home/storage2/users/xingcheng/CMSSW_14_0_18/src/JpsiUpsPhi-workspace/preCut/preCut.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -40,7 +40,7 @@ void preCut::Loop()
 
     Long64_t nentries = fChain->GetEntriesFast();
 
-    printf("Entries: %ld\n", nentries);
+    printf("Entries: %lld\n", nentries);
 
     const unsigned int nBin = 40;
     const unsigned int nBin_cut = 20;
@@ -137,7 +137,7 @@ void preCut::Loop()
             bool passCut = true;
 
             // Prevent underflow or overflow of masses.
-            if(Jpsi_mass->at(iCand) < 2.50 || Jpsi_mass->at(iCand) > 3.5){
+            if(Jpsi_mass->at(iCand) < 2.9 || Jpsi_mass->at(iCand) > 3.3){
                 continue;
             }
             if(Ups_mass->at(iCand)  < 8.00 || Ups_mass->at(iCand)  > 12.0){
@@ -240,10 +240,13 @@ void preCut::Loop()
             // - Require pT > 2.0 GeV/c as a crude cut.
             // Kaon tracks:
             // - Require pT > 0.5 GeV/c as a crude cut.
-            if(Phi_pt->at(iCand) < 2.0){
+            if(Phi_pt->at(iCand) < 4.0){
                 continue;
             }
-            if(Phi_K_1_pt->at(iCand) < 0.5 || Phi_K_2_pt->at(iCand) < 0.5){
+            if(Phi_K_1_pt->at(iCand) < 2 || Phi_K_2_pt->at(iCand) < 2){
+                continue;
+            }
+            if(fabs(Phi_K_1_eta->at(iCand)) > 2.5 || fabs(Phi_K_2_eta->at(iCand)) > 2.5){
                 continue;
             }
             #endif
@@ -417,6 +420,8 @@ void preCut::Loop()
             filtered_Phi_phi->push_back(Phi_phi->at(cand->GetId()));
             filtered_Phi_eta->push_back(Phi_eta->at(cand->GetId()));
             filtered_Phi_pt->push_back(Phi_pt->at(cand->GetId()));
+            filtered_Phi_ctau->push_back(Phi_ctau->at(cand->GetId()));
+            filtered_Phi_ctauErr->push_back(Phi_ctauErr->at(cand->GetId()));
             filtered_Phi_K_1_Idx->push_back(Phi_K_1_Idx->at(cand->GetId()));
             filtered_Phi_K_2_Idx->push_back(Phi_K_2_Idx->at(cand->GetId()));
 
@@ -573,6 +578,8 @@ void preCut::Loop()
         filtered_Phi_pt->clear();
         filtered_Phi_K_1_Idx->clear();
         filtered_Phi_K_2_Idx->clear();
+        filtered_Phi_ctau->clear();
+        filtered_Phi_ctauErr->clear();
 
         // For the muons
         filtered_Jpsi_mu_1_px->clear();
@@ -644,6 +651,7 @@ void preCut::Loop()
         puts(">>>>> End of event <<<<<");
         #endif
     }
+    #ifdef DRAW_RAW
     // Display the histograms.
     // Mass histograms passing the cut are drawn using Roofit.
     TCanvas* c2 = new TCanvas("c2", "c2", 1600, 1200);
@@ -663,6 +671,7 @@ void preCut::Loop()
     c2->cd(4); frame8->Draw();
     // Save png file.
     c2->SaveAs("mass_cut.png");
+    #endif
 
     // Storing the filtered candidates.
     // Create a new ROOT file to save the filtered data.

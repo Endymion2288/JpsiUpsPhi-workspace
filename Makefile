@@ -25,9 +25,9 @@
 #   - The output plots will be saved in the corresponding job directory.
 
 # Marker for this job.
-suffix=2023_half
+suffix=Run3all_first
 
-rootNtupleDir=/home/storage0/users/chiwang/storage2/CMS-Analysis/JpsiUpsPhi/rootNtuple
+rootNtupleDir=/home/storage0/users/xingcheng/storage2/CMS-Analysis/Data/JpsiUpsPhi/HTCondor_merged_rootNtuple_250401
 
 
 
@@ -60,6 +60,12 @@ all: $(preCut_output) $(preCut_joboutputs) $(secCut_joboutputs) $(fitMass_jobout
 clean:
 	rm -rf preCut/jobs_$(suffix)/* secCut/jobs_$(suffix)/* fitMass/jobs_$(suffix)/*
 
+datalist: config/datalist.txt
+
+config/datalist.txt:
+	rm -f ./config/datalist.txt
+	find $(rootNtupleDir) -mindepth 1 -maxdepth 1 -type f > ./config/datalist.txt
+
 # preCut stage:
 # - General target.
 
@@ -70,12 +76,12 @@ $(preCut_output): $(preCut_joboutputs)
 
 # - Target for one original root file.
 preCut/jobs_$(suffix)/%/filtered_data_preCut.root: preCut/jobs_$(suffix)/%/runPreCut.C config/datalist.txt preCut/preCut.C
-	cd $(dir $@) && root -x runPreCut.C
+	cd $(dir $@) && root -x -q runPreCut.C
 
 # - Target for generating the modified macro.
 preCut/jobs_$(suffix)/%/runPreCut.C: preCut/runPreCut.C config/datalist.txt preCut/preCut.C
 	mkdir -p $(dir $@)
-	sed -e "s|JOB_DATA|$(shell echo $@ | sed -r -e "s|preCut/jobs_$(suffix)\/(.*Run)([0-9]{4,4})(.*)\/runPreCut.C$$|$(rootNtupleDir)/P_Run\2_$(suffix)/\1\2\3.root|g")|g" $< | sed -r -e "s|\/\/\W*#define RUN_JOB|#define RUN_JOB|g" > $@
+	sed -e "s|JOB_DATA|$(shell echo $@ | sed -r -e "s|preCut/jobs_$(suffix)\/(.*Run)([0-9]{4,4})(.*)\/runPreCut.C$$|$(rootNtupleDir)/\1\2\3.root|g")|g" $< | sed -r -e "s|\/\/\W*#define RUN_JOB|#define RUN_JOB|g" > $@
 
 # secCut stage:
 # - General target.
@@ -84,7 +90,7 @@ sec: $(secCut_joboutputs)
 # - Target for one cut condition.
 secCut/jobs_$(suffix)/%/filtered_data_secCut.root: secCut/jobs_$(suffix)/%/runSecCut.C preCut/preCut_$(suffix).root secCut/jobs_$(suffix)/%/secCut.C config/cutlist.txt
 	mkdir -p secCut/jobs_$(suffix)/$*
-	cd secCut/jobs_$(suffix)/$* && root -x runSecCut.C
+	cd secCut/jobs_$(suffix)/$* && root -x -q runSecCut.C
 
 # - Target for generating the modified macro.
 secCut/jobs_$(suffix)/%/runSecCut.C: secCut/runSecCut.C $(preCut_output)

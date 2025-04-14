@@ -1,0 +1,6 @@
+universe = vanilla
+executable = /home/storage0/users/xingcheng/storage2/CMSSW_14_0_18/src/merge_rootfile/merge.sh
+output = /home/storage0/users/xingcheng/storage2/CMSSW_14_0_18/src/merge_rootfile/logs/merge.out
+error = /home/storage0/users/xingcheng/storage2/CMSSW_14_0_18/src/merge_rootfile/logs/merge.err
+log = /home/storage0/users/xingcheng/storage2/CMSSW_14_0_18/src/merge_rootfile/logs/merge.log
+queue
