@@ -25,9 +25,9 @@
 #   - The output plots will be saved in the corresponding job directory.
 
 # Marker for this job.
-suffix=Run3all_first
+suffix=Run3all_second
 
-rootNtupleDir=/home/storage0/users/xingcheng/storage2/CMS-Analysis/Data/JpsiUpsPhi/HTCondor_merged_rootNtuple_250401
+rootNtupleDir=/home/storage0/users/xingcheng/storage2/CMS-Analysis/Data/JpsiUpsPhi/HTCondor_merged_rootNtuple_250415
 
 
 
@@ -60,11 +60,11 @@ all: $(preCut_output) $(preCut_joboutputs) $(secCut_joboutputs) $(fitMass_jobout
 clean:
 	rm -rf preCut/jobs_$(suffix)/* secCut/jobs_$(suffix)/* fitMass/jobs_$(suffix)/*
 
-datalist: config/datalist.txt
+datalist: config/datalist_$(suffix).txt
 
-config/datalist.txt:
-	rm -f ./config/datalist.txt
-	find $(rootNtupleDir) -mindepth 1 -maxdepth 1 -type f > ./config/datalist.txt
+config/datalist_$(suffix).txt:
+	rm -f ./config/datalist_$(suffix).txt
+	find $(rootNtupleDir) -mindepth 1 -maxdepth 1 -type f > ./config/datalist_$(suffix).txt
 
 # preCut stage:
 # - General target.

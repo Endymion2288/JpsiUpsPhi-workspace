@@ -143,7 +143,7 @@ void preCut::Loop()
             if(Ups_mass->at(iCand)  < 8.00 || Ups_mass->at(iCand)  > 12.0){
                 continue;
             }
-            if(Phi_mass->at(iCand)  < 0.99 || Phi_mass->at(iCand)  > 1.07){
+            if(Phi_mass->at(iCand)  < 0.8 || Phi_mass->at(iCand)  > 1.2){
                 continue;
             }
 
@@ -240,7 +240,7 @@ void preCut::Loop()
             // - Require pT > 2.0 GeV/c as a crude cut.
             // Kaon tracks:
             // - Require pT > 0.5 GeV/c as a crude cut.
-            if(Phi_pt->at(iCand) < 4.0){
+            if(Phi_pt->at(iCand) < 2.0){
                 continue;
             }
             if(Phi_K_1_pt->at(iCand) < 2 || Phi_K_2_pt->at(iCand) < 2){
@@ -260,7 +260,8 @@ void preCut::Loop()
                             * (Ups_massDiff->at(iCand) / Ups_massErr->at(iCand))
                             + (Phi_massDiff->at(iCand) / Phi_massErr->at(iCand))
                             * (Phi_massDiff->at(iCand) / Phi_massErr->at(iCand));
-            tempCand.SetScore(temp_massChi2);
+            double temp_pt_abs = sqrt(Jpsi_pt->at(iCand) * Jpsi_pt->at(iCand) + Ups_pt->at(iCand) * Ups_pt->at(iCand) + Phi_pt->at(iCand) * Phi_pt->at(iCand));
+            tempCand.SetScore(temp_pt_abs);
             tempCand.SetId(iCand);
             CandList.push_back(std::make_shared<ParticleCand>(tempCand));
             tempCand.Clear();

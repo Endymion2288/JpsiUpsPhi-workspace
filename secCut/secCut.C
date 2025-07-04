@@ -22,8 +22,10 @@
 #define CUT_DR
 #define CUT_MASS
 // #define SHOW_DEBUG
-#define Stefanos_CUT
+// #define Stefanos_CUT
+#define Jpsi_CUT
 #define Ups_CUT
+#define Phi_CUT
 
 void secCut::Loop()
 {
@@ -37,11 +39,46 @@ void secCut::Loop()
     const unsigned int nBin_cut = 20;
     const unsigned int nCandsAllowed = 20;
 
+    double Jpsi_mass_min = 2.9;
+    double Jpsi_mass_max = 3.3;
+    double Ups_mass_min  = 8.5;
+    double Ups_mass_max  = 11.4;
+    double Phi_mass_min  = 0.99;
+    double Phi_mass_max  = 1.1;
+
+    double Jpsi_Ups_DR_max = 10.0;
+    double Jpsi_Phi_DR_max = 10.0;
+    double Ups_Phi_DR_max  = 10.0;
+
+    double Jpsi_Ups_DR_min = 0.0;
+    double Jpsi_Phi_DR_min = 0.0;
+    double Ups_Phi_DR_min  = 0.0;
+
+    double Jpsi_pT_min = 3.0;
+    double Jpsi_mu_pT_min = 3.0;
+    double Jpsi_VtxProb_min = 0.05;
+    bool require_Jpsi_trig = false;
+    bool Jpsi_mu_require_medium = false;
+    bool Jpsi_mu_require_loose  = false;
+    bool Jpsi_mu_require_tight  = false;
+
+    double Ups_pT_min = 4.0;
+    double Ups_mu_pT_min = 3.0;
+    double Ups_VtxProb_min = 0.1;
+    bool require_Ups_trig  = false;
+    bool Ups_mu_require_medium = false;
+    bool Ups_mu_require_loose  = false;
+    bool Ups_mu_require_tight  = true;
+
+    double Phi_pT_min = 2.0;
+    double Phi_K_pT_min = 2.0;
+    double Phi_VtxProb_min = 0.05;
+
     // Use Roofit to draw the plot with proper error bars.
     // Define mass histograms for Jpsi, Phi and Pri passing the cut. Using Roofit.
-    RooRealVar Jpsi_mass_var("Jpsi_mass_cut", "Jpsi_mass_cut", 2.9, 3.3);
-    RooRealVar Ups_mass_var("Ups_mass_cut", "Ups_mass_cut", 8.5, 11.4);
-    RooRealVar Phi_mass_var("Phi_mass_cut","Phi_mass_cut", 0.99, 1.07);
+    RooRealVar Jpsi_mass_var("Jpsi_mass_cut", "Jpsi_mass_cut", Jpsi_mass_min, Jpsi_mass_max);
+    RooRealVar Ups_mass_var("Ups_mass_cut", "Ups_mass_cut", Ups_mass_min, Ups_mass_max);
+    RooRealVar Phi_mass_var("Phi_mass_cut","Phi_mass_cut", Phi_mass_min, Phi_mass_max);
     RooRealVar Pri_mass_var("Pri_mass_cut","Pri_mass_cut", 0.0, 100.0);
 
     RooRealVar Jpsi_ctau_var("Jpsi_ctau_cut", "Jpsi_ctau_cut", -0.05, 0.1);
@@ -67,16 +104,16 @@ void secCut::Loop()
    gStyle->SetCanvasColor(33);
    gStyle->SetFrameFillColor(18);
    Int_t cancolor = 17;
-   auto h2 = new TH2F("h2", "Jpsi_mass and Ups_mass", 20, 2.9, 3.3, 20, 8.5, 11.4);
+   auto h2 = new TH2F("h2", "Jpsi_mass and Ups_mass", 20, Jpsi_mass_min, Jpsi_mass_max, 20, Ups_mass_min, Ups_mass_max);
    h2->SetFillColor(46);
-   auto h3 = new TH2F("h3", "Jpsi_mass and Phi_mass", 20, 2.9, 3.3, 20, 0.99, 1.07);
+   auto h3 = new TH2F("h3", "Jpsi_mass and Phi_mass", 20, Jpsi_mass_min, Jpsi_mass_max, 20, Phi_mass_min, Phi_mass_max);
    h3->SetFillColor(46);
-   auto h4 = new TH2F("h4", "Ups_mass and Phi_mass", 20, 8.5, 11.4, 20, 0.99, 1.07);
+   auto h4 = new TH2F("h4", "Ups_mass and Phi_mass", 20, Ups_mass_min, Ups_mass_max, 20, Phi_mass_min, Phi_mass_max);
    h4->SetFillColor(46);
 
-    RooRealVar m_Jpsi("m_Jpsi", "J/#psi invariant mass", 3.097, 2.9, 3.3);
-    RooRealVar m_Ups("m_Ups", "Ups invariant mass", 9.460, 8.5, 11.4);
-    RooRealVar m_Phi("m_Phi", "#Phi invariant mass", 1.019, 0.99, 1.07);
+    RooRealVar m_Jpsi("m_Jpsi", "J/#psi invariant mass", 3.097, Jpsi_mass_min, Jpsi_mass_max);
+    RooRealVar m_Ups("m_Ups", "Ups invariant mass", 9.460, Ups_mass_min, Ups_mass_max);
+    RooRealVar m_Phi("m_Phi", "#Phi invariant mass", 1.019, Phi_mass_min, Phi_mass_max);
 
     RooArgSet normSet_Jpsi(m_Jpsi);
     RooArgSet normSet_Ups(m_Ups);
@@ -225,11 +262,11 @@ void secCut::Loop()
 //    RooRealVar c1_Phi("c1_Phi", "Phi bkg c1", 0.01, -10.0, 10.0);
 //    RooRealVar c2_Phi("c2_Phi", "Phi bkg c2", 0.001, -10.0, 10.0);
 //    RooChebychev bkg_Phi("bkg_Phi", "Background PDF for #Phi", m_Phi, RooArgList(c0_Phi, c1_Phi, c2_Phi));
-   RooRealVar c0_Phi("c0_Phi", "Phi bkg c0", 0.1, -10.0, 10.0);
-   RooRealVar c1_Phi("c1_Phi", "Phi bkg c1", 0.01, -10.0, 10.0);
-   RooRealVar c2_Phi("c2_Phi", "Phi bkg c2", 0.001, -10.0, 10.0);
-   RooRealVar c3_Phi("c3_Phi", "Phi bkg c3", 0.001, -10.0, 10.0);
-   RooRealVar c4_Phi("c4_Phi", "Phi bkg c4", 0.0001, -10.0, 10.0);
+   RooRealVar c0_Phi("c0_Phi", "Phi bkg c0", 0.1, -100.0, 100.0);
+   RooRealVar c1_Phi("c1_Phi", "Phi bkg c1", 0.01, -100.0, 100.0);
+   RooRealVar c2_Phi("c2_Phi", "Phi bkg c2", 0.001, -100.0, 100.0);
+   RooRealVar c3_Phi("c3_Phi", "Phi bkg c3", 0.001, -100.0, 100.0);
+   RooRealVar c4_Phi("c4_Phi", "Phi bkg c4", 0.0001, -100.0, 100.0);
    RooPolynomial bkg_Phi("bkg_Phi", "Background PDF for #Phi", m_Phi, RooArgList(c0_Phi, c1_Phi, c2_Phi, c3_Phi, c4_Phi));
    
 //    // Phi 的背景模型（误差函数）
@@ -269,7 +306,7 @@ void secCut::Loop()
     RooProdPdf pdf_SBB("pdf_SBB", "Signal+Background+Background PDF", 
                    RooArgList(signal_Jpsi, bkg_Ups, bkg_Phi));
     // BSB: background+signal+background
-    RooRealVar yield_BSB("yield_BSB", "Yield of BSB", 25, 0, 10000);
+    RooRealVar yield_BSB("yield_BSB", "Yield of BSB", 25, 0, 1000000);
     RooProdPdf pdf_BSB("pdf_BSB", "Background+Signal+Background PDF", 
                    RooArgList(bkg_Jpsi, signal_Ups, bkg_Phi));
     // BBS: background+background+signal
@@ -277,7 +314,7 @@ void secCut::Loop()
     RooProdPdf pdf_BBS("pdf_BBS", "Background+Background+Signal PDF", 
                    RooArgList(bkg_Jpsi, bkg_Ups, signal_Phi));
     // BBB: background+background+background
-    RooRealVar yield_BBB("yield_BBB", "Yield of BBB", 10, 0, 10000);
+    RooRealVar yield_BBB("yield_BBB", "Yield of BBB", 10, 0, 100000);
     RooProdPdf pdf_BBB("pdf_BBB", "Background+Background+Background PDF", 
                    RooArgList(bkg_Jpsi, bkg_Ups, bkg_Phi));
     // 组合8种可能性为一个完整模型
@@ -285,24 +322,6 @@ void secCut::Loop()
                       RooArgList(pdf_SSS, pdf_SSB, pdf_SBS, pdf_BSS, pdf_SBB, pdf_BSB, pdf_BBS, pdf_BBB),
                       RooArgList(yield_SSS, yield_SSB, yield_SBS, yield_BSS, yield_SBB, yield_BSB, yield_BBS, yield_BBB));
     totalModel.fixCoefNormalization(normSet_Total);
-
-    double Jpsi_Ups_DR_max = 10.0;
-    double Jpsi_Phi_DR_max    = 10.0;
-    double Ups_Phi_DR_max    = 10.0;
-
-    double Jpsi_Ups_DR_min = 0.0;
-    double Jpsi_Phi_DR_min = 0.0;
-    double Ups_Phi_DR_min  = 0.0;
-
-    double Ups_pT_min = 6.0;
-    double Ups_mu_pT_min = 3;
-
-    bool Ups_mu_require_medium = false;
-    bool Ups_mu_require_loose  = false;
-    bool Ups_mu_require_tight  = false;
-
-    bool require_Jpsi_trig = false;
-    bool require_Ups_trig  = true;
 
 
     // --- End of cut parameters registration ---
@@ -380,6 +399,27 @@ void secCut::Loop()
 
             #endif
 
+            #ifdef Jpsi_CUT
+            if (Jpsi_pt->at(iCand) < Jpsi_pT_min){
+                passCut = false;
+            }
+            if (Jpsi_mu_1_pt->at(iCand) < Jpsi_mu_pT_min || Jpsi_mu_2_pt->at(iCand) < Jpsi_mu_pT_min){
+                passCut = false;
+            }
+            if (Jpsi_VtxProb->at(iCand) < Jpsi_VtxProb_min){
+                passCut = false;
+            }
+            if (Jpsi_mu_require_medium && (!Jpsi_mu_1_isPatMediumMuon->at(iCand) || !Jpsi_mu_2_isPatMediumMuon->at(iCand))){
+                passCut = false;
+            }
+            if (Jpsi_mu_require_loose && (!Jpsi_mu_1_isPatLooseMuon->at(iCand) || !Jpsi_mu_2_isPatLooseMuon->at(iCand))){
+                passCut = false;
+            }
+            if (Jpsi_mu_require_tight && (!Jpsi_mu_1_isPatTightMuon->at(iCand) || !Jpsi_mu_2_isPatTightMuon->at(iCand))){
+                passCut = false;
+            }
+            #endif
+
             // Apply Upsilon cuts
             #ifdef Ups_CUT
             if (Ups_pt->at(iCand) < Ups_pT_min){
@@ -388,6 +428,10 @@ void secCut::Loop()
 
             // Apply muon cuts
             if (Ups_mu_1_pt->at(iCand) < Ups_mu_pT_min || Ups_mu_2_pt->at(iCand) < Ups_mu_pT_min){
+                passCut = false;
+            }
+
+            if (Ups_VtxProb->at(iCand) < Ups_VtxProb_min){
                 passCut = false;
             }
 
@@ -404,11 +448,26 @@ void secCut::Loop()
             }
             #endif
 
+            #ifdef Phi_CUT
+            if (Phi_pt->at(iCand) < Phi_pT_min){
+                passCut = false;
+            }
+            if (Phi_K_1_pt->at(iCand) < Phi_K_pT_min || Phi_K_2_pt->at(iCand) < Phi_K_pT_min){
+                passCut = false;
+            }
+            if (Phi_VtxProb->at(iCand) < Phi_VtxProb_min){
+                passCut = false;
+            }
+            #endif
+
             #ifdef CUT_MASS
-            // if (Jpsi_mass->at(iCand) < 3.0 || Jpsi_mass->at(iCand) > 3.2){
-            //     passCut = false;
-            // }
-            if (Ups_mass->at(iCand) < 8.5 || Ups_mass->at(iCand) > 11.4){
+            if (Jpsi_mass->at(iCand) < Jpsi_mass_min || Jpsi_mass->at(iCand) > Jpsi_mass_max){
+                passCut = false;
+            }
+            if (Ups_mass->at(iCand) < Ups_mass_min || Ups_mass->at(iCand) > Ups_mass_max){
+                passCut = false;
+            }
+            if (Phi_mass->at(iCand) < Phi_mass_min || Phi_mass->at(iCand) > Phi_mass_max){
                 passCut = false;
             }
             #endif

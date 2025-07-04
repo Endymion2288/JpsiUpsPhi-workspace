@@ -45,7 +45,7 @@ process_folder() {
 # 获取CPU核心数
 NUM_CORES=$(nproc)
 # 可选：留出1-2个核心给系统
-MAX_PARALLEL=$(((NUM_CORES - 2) / 2))
+MAX_PARALLEL=$(((NUM_CORES - 5)))
 # 确保至少有1个核心用于处理
 [ "$MAX_PARALLEL" -lt 1 ] && MAX_PARALLEL=1
 
